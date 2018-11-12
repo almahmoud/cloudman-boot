@@ -308,7 +308,7 @@
     headers:
       Content-Type: application/json
       Authorization: Bearer {{ token }}
-    validate_certs:
+    validate_certs: no
   register: kubectl_config
 
 - name: Make sure ~/.kube dir exist
@@ -335,7 +335,7 @@
   delay: 2
 
 - name: Add CloudVE Helm repo
-  shell: /usr/local/bin/helm repo add galaxyproject https://raw.githubusercontent.com/CloudVE/helm-charts/master/
+  shell: /usr/local/bin/helm repo add galaxyproject https://raw.githubusercontent.com/almahmoud/helm-charts/master/
 
 - name: Update Helm repos
   shell: /usr/local/bin/helm repo update
