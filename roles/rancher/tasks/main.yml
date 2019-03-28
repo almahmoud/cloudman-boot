@@ -552,6 +552,89 @@
     svc_access_line: "Login to any of these services as user 'admin', using the password you supplied."
   when: using_random_pwd is not defined
 
+- name: Login to KeyCloak
+  uri:
+    url: "https://{{ rancher_server }}/auth/realms/master/protocol/openid-connect/token"
+    method: POST
+    body_format: form-urlencoded
+    body:
+      client_id: admin-cli
+      grant_type: password
+      username: admin
+      password: "{{ rancher_password }}"
+    validate_certs: no
+    return_content: yes
+  ignore_errors: yes
+  register: kc_login_response
+  until: kc_login_response['status']
+  retries: 5
+  delay: 10
+
+- name: Set KeyCloak Token
+  set_fact:
+    kc_token: "{{ kc_login_response.json.access_token }}"
+
+- name: Create KeyCloak SAML Client
+  uri:
+    url: "https://{{ rancher_server }}/auth/admin/realms/master/clients"
+    method: POST
+    body_format: json
+    body:
+      clientId: "https://{{ rancher_server }}/v1-saml/keycloak/saml/metadata"
+      name: "rancher"
+      protocol: "saml"
+      frontchannelLogout: false
+      redirectUris: ["https://{{ rancher_server }}/v1-saml/keycloak/saml/acs"]
+      attributes: { "saml.authnstatement": false, "saml.client.signature": false, "saml.force.post.binding": false, "saml.server.signature": true}
+    validate_certs: no
+    status_code: 201
+    headers:
+      Authorization: Bearer {{ kc_token }}
+    return_content: yes
+  ignore_errors: yes
+  register: kc_client_response
+  retries: 5
+  delay: 10
+
+- name: Set Client URL
+  set_fact:
+    kc_client: "{{ kc_client_response.location }}"
+
+- name: Get New KeyCloak Token
+  uri:
+    url: "https://{{ rancher_server }}/auth/realms/master/protocol/openid-connect/token"
+    method: POST
+    body_format: form-urlencoded
+    body:
+      client_id: admin-cli
+      grant_type: password
+      username: admin
+      password: "{{ rancher_password }}"
+    validate_certs: no
+    return_content: yes
+  ignore_errors: yes
+  register: kc_login_response
+  until: kc_login_response['status']
+  retries: 5
+  delay: 10
+
+- name: Set KeyCloak Token
+  set_fact:
+    kc_token: "{{ kc_login_response.json.access_token }}"
+
+- name: Get SAML Metadata IDPSSODescriptor
+  uri:
+    url: "{{ kc_client_response.location }}/installation/providers/saml-idp-descriptor"
+    method: GET
+    validate_certs: no
+    headers:
+      Authorization: Bearer {{ kc_token }}
+    return_content: yes
+  ignore_errors: yes
+  register: idp_metadata
+  retries: 5
+  delay: 10
+
 - name: Wait for CloudMan login to become accessible
   uri:
     url: "https://{{ rancher_server }}/cloudman/openid/openid/KeyCloak"
