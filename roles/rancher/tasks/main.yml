@@ -394,6 +394,10 @@
     --set "cloudlaunch.cloudlaunch-server.admin_password={{ rancher_password }}"
     --set "keycloak.keycloak.password={{ rancher_password }}"
     --set "global.domain={{ rancher_server }}"
+    --set "grafana.routePrefix=/grafana"
+    --set "grafana.service.type=NodePort"
+    --set "grafana.prometheusPort=9090"
+    --set "grafana.grafanaWatcher.resources
   ignore_errors: true
 
 # - helm:
