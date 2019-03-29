@@ -592,31 +592,90 @@
   retries: 5
   delay: 10
 
-- name: Set Client URL
-  set_fact:
-    kc_client: "{{ kc_client_response.location }}"
-
-- name: Get New KeyCloak Token
+- name: Create cn mapping
   uri:
-    url: "https://{{ rancher_server }}/auth/realms/master/protocol/openid-connect/token"
+    url: "{{ kc_client_response.location }}/protocol-mappers/models"
     method: POST
-    body_format: form-urlencoded
+    body_format: json
     body:
-      client_id: admin-cli
-      grant_type: password
-      username: admin
-      password: "{{ rancher_password }}"
+      config:
+        user.attribute: "username"
+        friendly.name: ""
+        attribute.name: "cn"
+        attribute.nameformat: "Basic"
+      name: "username to cn"
+      protocol: "saml"
+      protocolMapper: "saml-user-property-mapper"
     validate_certs: no
-    return_content: yes
-  ignore_errors: yes
-  register: kc_login_response
-  until: kc_login_response['status']
+    status_code: 201
+    headers:
+      Authorization: Bearer {{ kc_token }}
   retries: 5
   delay: 10
 
-- name: Set KeyCloak Token
-  set_fact:
-    kc_token: "{{ kc_login_response.json.access_token }}"
+- name: Create uid mapping
+  uri:
+    url: "{{ kc_client_response.location }}/protocol-mappers/models"
+    method: POST
+    body_format: json
+    body:
+      config:
+        user.attribute: "username"
+        friendly.name: ""
+        attribute.name: "uid"
+        attribute.nameformat: "Basic"
+      name: "username to uid"
+      protocol: "saml"
+      protocolMapper: "saml-user-property-mapper"
+    validate_certs: no
+    status_code: 201
+    headers:
+      Authorization: Bearer {{ kc_token }}
+  retries: 5
+  delay: 10
+
+- name: Create displayName mapping
+  uri:
+    url: "{{ kc_client_response.location }}/protocol-mappers/models"
+    method: POST
+    body_format: json
+    body:
+      config:
+        user.attribute: "firstName"
+        friendly.name: ""
+        attribute.name: "displayName"
+        attribute.nameformat: "Basic"
+      name: "firstName to displayName"
+      protocol: "saml"
+      protocolMapper: "saml-user-property-mapper"
+    validate_certs: no
+    status_code: 201
+    headers:
+      Authorization: Bearer {{ kc_token }}
+  retries: 5
+  delay: 10
+
+- name: Create Groups mapping
+  uri:
+    url: "{{ kc_client_response.location }}/protocol-mappers/models"
+    method: POST
+    body_format: json
+    body:
+      config:
+        attribute.name: "memberOf"
+        attribute.nameformat: "Basic"
+        friendly.name: ""
+        full.path: false
+        single: true
+      name: "Groups"
+      protocol: "saml"
+      protocolMapper: "saml-group-membership-mapper"
+    validate_certs: no
+    status_code: 201
+    headers:
+      Authorization: Bearer {{ kc_token }}
+  retries: 5
+  delay: 10
 
 - name: Get SAML Metadata IDPSSODescriptor
   uri:
