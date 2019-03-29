@@ -576,11 +576,11 @@
     method: POST
     body_format: json
     body:
-      clientId: "https://{{ rancher_server }}/v1-saml/keycloak/saml/metadata"
+      clientId: "https://{{ rancher_server }}:{{ rancher_port }}/v1-saml/keycloak/saml/metadata"
       name: "rancher"
       protocol: "saml"
       frontchannelLogout: false
-      redirectUris: ["https://{{ rancher_server }}/v1-saml/keycloak/saml/acs"]
+      redirectUris: ["https://{{ rancher_server }}:{{ rancher_port }}/v1-saml/keycloak/saml/acs"]
       attributes: { "saml.authnstatement": false, "saml.client.signature": false, "saml.force.post.binding": false, "saml.server.signature": true}
     validate_certs: no
     status_code: 201
