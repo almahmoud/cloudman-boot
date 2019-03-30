@@ -690,6 +690,76 @@
   retries: 5
   delay: 10
 
+- name: Generate a key
+  openssl_privatekey:
+    path: /tmp/cm-boot/ansible-rancher.pem
+    size: 2048
+
+- name: Generate CSR
+  openssl_csr:
+    path: /tmp/cm-boot/ansible-rancher.csr
+    privatekey_path: /tmp/cm-boot/ansible-rancher.pem
+    common_name: ansible-rancher
+
+- name: Generate a Self Signed OpenSSL certificate
+  openssl_certificate:
+    path: /tmp/cm-boot/ansible-rancher.crt
+    privatekey_path: /tmp/cm-boot/ansible-rancher.pem
+    csr_path: /tmp/cm-boot/ansible-rancher.csr
+    provider: selfsigned
+
+- name: Set key and certificate
+  set_fact:
+    rancher_key: "{{ lookup('file', '/tmp/cm-boot/ansible-rancher.pem') }}"
+    rancher_cert: "{{ lookup('file', '/tmp/cm-boot/ansible-rancher.crt') }}"
+
+- name: Login to Rancher
+  uri:
+    url: "https://{{ rancher_server }}:{{ rancher_port }}/v3-public/localProviders/local?action=login"
+    method: POST
+    body_format: json
+    body:
+      username: admin
+      password: "{{ rancher_password }}"
+    validate_certs: no
+    status_code: 201
+    return_content: yes
+  register: rancher_login
+
+- name: Set Rancher Token
+  set_fact:
+    ra_token: "{{ rancher_login.json.token }}"
+
+- name: Setup Rancher External Auth
+  uri:
+    url: "https://{{ rancher_server }}:{{ rancher_port }}/v3/keyCloakConfigs/keycloak"
+    method: PUT
+    validate_certs: no
+    body_format: json
+    body:
+      accessMode: "required"
+      actions: { "disable": "https://{{ rancher_server }}:{{ rancher_port }}/v3/keyCloakConfigs/keycloak?action=disable", "testAndEnable": "https://{{ rancher_server }}:{{ rancher_port }}/v3/keyCloakConfigs/keycloak?action=testAndEnable" }
+      allowedPrincipalIds: ["keycloak_user://admin"]
+      baseType: "authConfig"
+      displayNameField: "displayName"
+      enabled: true
+      groupsField: "memberOf"
+      id: "keycloak"
+      idpMetadataContent: '{{ idp_metadata.content }}'
+      links: { "self": "https://{{ rancher_server }}:{{ rancher_port }}/v3/keyCloakConfigs/keycloak", "update": "https://{{ rancher_server }}:{{ rancher_port }}/v3/keyCloakConfigs/keycloak" }
+      name: "keycloak"
+      rancherApiHost: "https://{{ rancher_server }}:{{ rancher_port }}/"
+      spCert: "{{ rancher_cert }}"
+      spKey: "{{ rancher_key }}"
+      type: "keyCloakConfig"
+      uidField: "uid"
+      userNameField: "cn"
+    headers:
+      Authorization: Bearer {{ ra_token }}
+  ignore_errors: yes
+  retries: 5
+  delay: 10
+
 - name: Wait for CloudMan login to become accessible
   uri:
     url: "https://{{ rancher_server }}/cloudman/openid/openid/KeyCloak"

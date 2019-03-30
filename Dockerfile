@@ -12,7 +12,7 @@ RUN echo "===> Add docker..."  && \
     ln -sf /usr/local/bin/python /usr/bin/python3 && \
     \
     echo "===> Installing python packages..."  && \
-    pip install --no-cache-dir ansible docker-py && \
+    pip install --no-cache-dir ansible docker-py pyopenssl && \
     \
     echo "==> Installing latest kubectl and helm..." && \
     apk add --no-cache curl && \
