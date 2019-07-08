@@ -130,48 +130,6 @@
         ingress:
           provider: nginx
           type: ingressConfig
-        services:
-          type: "/v3/schemas/rkeConfigServices"
-          kubeApi:
-            type: "/v3/schemas/kubeAPIService"
-            extraArgs:
-              feature-gates: "TTLAfterFinished=true"
-          kubeController:
-            type: "/v3/schemas/kubeControllerService"
-            extraArgs:
-              feature-gates: "TTLAfterFinished=true"
-          kubelet:
-            type: "/v3/schemas/kubeletService"
-            extraArgs:
-              feature-gates: "TTLAfterFinished=true"
-          kubeproxy:
-            type: "/v3/schemas/kubeproxyService"
-            extraArgs:
-              feature-gates: "TTLAfterFinished=true"
-          scheduler:
-            type: "/v3/schemas/schedulerService"
-            extraArgs:
-              feature-gates: "TTLAfterFinished=true"
-    headers:
-      Authorization: Bearer {{ token }}
-    validate_certs: no
-    status_code: 201
-  register: cluster
-  when: not cluster_id is defined and not kube_cloud_provider
-
-- name: Create a cluster
-  uri:
-    url: https://{{ rancher_server }}:{{ rancher_port }}/v3/cluster
-    method: POST
-    body_format: json
-    body:
-      type: cluster
-      name: "{{ cm_cluster_name }}"
-      rancherKubernetesEngineConfig:
-        ignoreDockerVersion: true
-        ingress:
-          provider: nginx
-          type: ingressConfig
         cloudProvider:
           name: "{{ kube_cloud_provider }}"
           customCloudProvider: |-
@@ -206,6 +164,48 @@
     status_code: 201
   register: cluster
   when: not cluster_id is defined and kube_cloud_provider
+
+- name: Create a cluster
+  uri:
+    url: https://{{ rancher_server }}:{{ rancher_port }}/v3/cluster
+    method: POST
+    body_format: json
+    body:
+      type: cluster
+      name: "{{ cm_cluster_name }}"
+      rancherKubernetesEngineConfig:
+        ignoreDockerVersion: true
+        ingress:
+          provider: nginx
+          type: ingressConfig
+        services:
+          type: "/v3/schemas/rkeConfigServices"
+          kubeApi:
+            type: "/v3/schemas/kubeAPIService"
+            extraArgs:
+              feature-gates: "TTLAfterFinished=true"
+          kubeController:
+            type: "/v3/schemas/kubeControllerService"
+            extraArgs:
+              feature-gates: "TTLAfterFinished=true"
+          kubelet:
+            type: "/v3/schemas/kubeletService"
+            extraArgs:
+              feature-gates: "TTLAfterFinished=true"
+          kubeproxy:
+            type: "/v3/schemas/kubeproxyService"
+            extraArgs:
+              feature-gates: "TTLAfterFinished=true"
+          scheduler:
+            type: "/v3/schemas/schedulerService"
+            extraArgs:
+              feature-gates: "TTLAfterFinished=true"
+    headers:
+      Authorization: Bearer {{ token }}
+    validate_certs: no
+    status_code: 201
+  register: cluster
+  when: not cluster_id is defined and not kube_cloud_provider
 
 - name: Store new cluster id
   set_fact:
