@@ -475,6 +475,10 @@
 - name: Update Helm repos
   shell: /usr/local/bin/helm repo update
 
+- name: Fallback to hostPath provisioner when no cloud provider is set
+  shell: /usr/local/bin/kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
+  when: not kube_cloud_provider
+
 # Persistent Volumes are being added instead above
 - name: Check if nfs-provisioner app has been added
   uri:
