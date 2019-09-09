@@ -381,7 +381,7 @@
     status_code: 201
   when: cm_helm_app.json.data | length == 0
   with_items:
-    - { app_name: "{{ galaxy_catalog_name }}", app_url: 'https://github.com/CloudVE/helm-charts.git', branch: 'master' }
+    - { app_name: "{{ galaxy_catalog_name }}", app_url: 'https://github.com/almahmoud/helm-charts.git', branch: 'master' }
   loop_control:  # Rancher's concurrency here does not keep up without sleep
     pause: 10
 
@@ -469,8 +469,8 @@
   retries: 30
   delay: 2
 
-- name: Add CloudVE Helm repo
-  shell: /usr/local/bin/helm repo add galaxyproject https://raw.githubusercontent.com/cloudve/helm-charts/master/
+- name: Add almahmoud Helm repo
+  shell: /usr/local/bin/helm repo add galaxyproject https://raw.githubusercontent.com/almahmoud/helm-charts/master/
 
 - name: Update Helm repos
   shell: /usr/local/bin/helm repo update
@@ -567,7 +567,7 @@
 #       version: "{{ cm_helm_version }}"
 #       source:
 #         type: repo
-#         location: https://raw.githubusercontent.com/CloudVE/helm-charts/master/
+#         location: https://raw.githubusercontent.com/almahmoud/helm-charts/master/
 #     values:
 #       cloudlaunch.cloudlaunch-server.extra_env.rancher_url: "https://{{ rancher_server }}:{{ rancher_port }}"
 #       cloudlaunch.cloudlaunch-server.extra_env.rancher_api_key: "{{ token }}"
@@ -589,7 +589,7 @@
 #       version: "{{ cm_helm_version }}"
 #       source:
 #         type: repo
-#         location: https://raw.githubusercontent.com/CloudVE/helm-charts/master/
+#         location: https://raw.githubusercontent.com/almahmoud/helm-charts/master/
 #     values:
 #       cloudlaunch.cloudlaunch-server.extra_env.rancher_url: "https://{{ rancher_server }}:{{ rancher_port }}"
 #       cloudlaunch.cloudlaunch-server.extra_env.rancher_api_key: "{{ token }}"
