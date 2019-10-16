@@ -386,7 +386,7 @@
     status_code: 201
   when: cm_helm_app.json.data | length == 0
   with_items:
-    - { app_name: "{{ galaxy_catalog_name }}", app_url: 'https://github.com/CloudVE/helm-charts.git', branch: 'master' }
+    - { app_name: "{{ galaxy_catalog_name }}", app_url: 'https://github.com/almahmoud/helm-charts.git', branch: 'vahid_ubos' }
   loop_control:  # Rancher's concurrency here does not keep up without sleep
     pause: 10
 
