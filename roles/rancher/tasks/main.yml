@@ -386,7 +386,7 @@
     status_code: 201
   when: cm_helm_app.json.data | length == 0
   with_items:
-    - { app_name: "{{ galaxy_catalog_name }}", app_url: 'https://github.com/CloudVE/helm-charts.git', branch: 'master' }
+    - { app_name: "{{ galaxy_catalog_name }}", app_url: 'https://github.com/almahmoud/helm-charts.git', branch: 'master' }
   loop_control:  # Rancher's concurrency here does not keep up without sleep
     pause: 10
 
@@ -475,7 +475,7 @@
   delay: 2
 
 - name: Add CloudVE Helm repo
-  shell: /usr/local/bin/helm repo add galaxyproject https://raw.githubusercontent.com/cloudve/helm-charts/master/
+  shell: /usr/local/bin/helm repo add galaxyproject https://raw.githubusercontent.com/almahmoud/helm-charts/master/
 
 - name: Update Helm repos
   shell: /usr/local/bin/helm repo update
