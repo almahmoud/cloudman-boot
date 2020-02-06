@@ -1,0 +1,20 @@
+- name: Create CVMFS-CSI chart template file
+  template:
+    src: cvmfs_chart_values.yml.j2
+    dest: /tmp/template_cvmfs_chart_values.j2
+
+- name: Render CVMFS-CSI chart custom values file
+  template:
+    src: /tmp/template_cvmfs_chart_values.j2
+    dest: /tmp/cvmfs_chart_values.yml
+
+- name: Create CVMFS namespace
+  command: >
+    /usr/local/bin/kubectl create namespace cvmfs
+
+- name: Helm install CloudMan
+  command: >
+    /usr/local/bin/helm install gxy-cvmfs galaxyproject/galaxy-cvmfs-csi
+    --namespace cvmfs
+    -f /tmp/cvmfs_chart_values.yml
+  ignore_errors: true
