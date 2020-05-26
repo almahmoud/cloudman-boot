@@ -279,6 +279,7 @@
       reclaimPolicy: "Delete"
       allowVolumeExpansion: true
       provisioner: "kubernetes.io/aws-ebs"
+      volumeBindingMode: "WaitForFirstConsumer"
       parameters:
         type: "gp2"
         encrypted: "true"
@@ -299,6 +300,7 @@
       reclaimPolicy: "Delete"
       allowVolumeExpansion: true
       provisioner: "kubernetes.io/azure-disk"
+      volumeBindingMode: "WaitForFirstConsumer"
       parameters:
         kind: "shared"
     headers:
@@ -318,6 +320,7 @@
       reclaimPolicy: "Delete"
       allowVolumeExpansion: true
       provisioner: "kubernetes.io/gce-pd"
+      volumeBindingMode: "WaitForFirstConsumer"
       parameters:
         type: "pd-ssd"
     headers:
@@ -337,6 +340,7 @@
       reclaimPolicy: "Delete"
       allowVolumeExpansion: true
       provisioner: "kubernetes.io/cinder"
+      volumeBindingMode: "WaitForFirstConsumer"
     headers:
       Authorization: Bearer {{ token }}
     validate_certs: no
