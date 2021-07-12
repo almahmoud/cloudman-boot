@@ -76,4 +76,4 @@
   shell: "kubectl get node | grep {{ ansible_hostname }}"
   register: kubectl_node_ready
   until: "' Ready' in kubectl_node_ready.stdout"
-  retries: 50
+  retries: 120
